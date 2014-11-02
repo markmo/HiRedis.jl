@@ -30,6 +30,12 @@ From source
     cd hiredis
     sudo make && make install
 
+Hiredis.jl is also dependent on the following Julia packages:
+
+    Pkg.add("Logging")
+    Pkg.add("Docile")
+
+To install into the Julia environment:
 
     julia> Pkg.add("https://github.com/markmo/Hiredis.jl.git")
 
