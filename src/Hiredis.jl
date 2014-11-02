@@ -285,7 +285,7 @@ function getkeys(pattern::String)
 end
 
 @doc "Return a serialized version of the value stored at the specified key." ->
-function dump(key::String)
+function rdump(key::String)
     docommand(string("DUMP ", key))
 end
 
@@ -547,7 +547,7 @@ function flushall()
 end
 
 export start_session, end_session,                                                  # session
-    kvset, kvget, incr, del, exists, getkeys, dump, rtype,                          # key-value
+    kvset, kvget, incr, del, exists, getkeys, rdump, rtype,                         # key-value
     hset, hget, hmset, hmget, hgetall, hdel, hexists, hkeys, hvals, hlen, hincrby,  # hash sets
     sadd, smembers, sismember, scard, srem, sdiff, sinter, sunion,                  # sets
     selectdb, flushdb, flushall,                                                    # management
