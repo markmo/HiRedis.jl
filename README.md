@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/markmo/Hiredis.jl.svg?branch=master)](https://travis-ci.org/markmo/Hiredis.jl)
+
 # Hiredis
 
 Julia Redis client, which wraps the hiredis C library.
@@ -32,12 +34,12 @@ From source
 
 Hiredis.jl is also dependent on the following Julia packages:
 
-    Pkg.add("Logging")
-    Pkg.add("Docile")
+* Logging.jl
+* Docile.jl (documentation)
 
 To install into the Julia environment:
 
-    julia> Pkg.add("https://github.com/markmo/Hiredis.jl.git")
+    julia> Pkg.clone("https://github.com/markmo/Hiredis.jl.git")
 
 ## Usage
 
@@ -65,4 +67,58 @@ Commands can be pipelined using the @pipeline macro:
 
 Pipelining sends a batch of commands to Redis to be processed in bulk. It cuts down the number of network requests. In the example above, the commands are only sent when the output buffer is full or `get_reply` is called.
 
-[![Build Status](https://travis-ci.org/markmo/Hiredis.jl.svg?branch=master)](https://travis-ci.org/markmo/Hiredis.jl)
+The following command set is currently supported by a specific function:
+
+* session
+  * start_session
+  * end_session
+* key-value store
+  * kvset
+  * kvget
+  * incr
+  * del
+  * exists
+  * getkeys
+  * rdump
+  * rtype
+* hash sets
+  * hset
+  * hget
+  * hmset
+  * hmget
+  * hgetall
+  * hdel
+  * hexists
+  * hkeys
+  * hvals
+  * hlen
+  * hincrby
+* sets
+  * sadd
+  * smembers
+  * sismember
+  * scard
+  * srem
+  * sdiff
+  * sinter
+  * sunion
+* management
+  * selectdb
+  * flushdb
+  * flushall
+* pipelining
+  * @pipeline
+  * get_reply
+* generic
+  * do_command
+  * pipeline_command
+
+Any command not specifically supported above can be executed using the generic functions, e.g.:
+
+    do_command("LPUSH mylist value")                    # blocking command
+
+    pipeline_command("ZADD mysortedset score member")   # pipelined command
+
+## Alternatives
+
+[Redis.jl](https://github.com/msainz/Redis.jl) is a pure Julia implementation. It supports a basic set of commands for the key-value data structure. It doesn't appear to support pipelining yet.
