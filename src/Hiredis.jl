@@ -155,7 +155,7 @@ Array.
 """ ->
 function get_reply()
     redisReply = Array(Ptr{RedisReply}, 1)
-    results = []
+    results = Any[]
     while pipelinedCommandCount > 0 && call_get_reply(redisReply) == REDIS_OK
         push!(results, get_result(redisReply[1]))
         global pipelinedCommandCount -= 1
@@ -178,8 +178,8 @@ function get_result(redisReply::Ptr{RedisReply})
     elseif r.rtype == REDIS_REPLY_INTEGER
         ret = int(r.integer)
     elseif r.rtype == REDIS_REPLY_ARRAY
-        results = []
         n = int(r.elements)
+        results = String[]
         replies = pointer_to_array(r.element, n)
         for i in 1:n
             ri = unsafe_load(replies[i])
