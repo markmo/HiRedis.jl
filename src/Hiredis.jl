@@ -212,7 +212,7 @@ function do_command(command::String)
         start_session()
     end
     debug(string("RedisClient.do_command: ", command))
-    redisReply = ccall((:redisCommand, "libhiredis"), Ptr{RedisReply}, (Ptr{RedisContext}, Ptr{Uint8}), redisContext::Ptr{RedisContext}, command)
+    redisReply = ccall((:redisvCommand, "libhiredis"), Ptr{RedisReply}, (Ptr{RedisContext}, Ptr{Uint8}), redisContext::Ptr{RedisContext}, command)
     get_result(redisReply)
 end
 

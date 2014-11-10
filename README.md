@@ -22,15 +22,21 @@ Debian / Ubuntu
 
 Red Hat / CentOS
 
-    sudo yum install hiredis
-
-CentOS requires the EPEL repository. It may need to be installed from source on RHEL.
+The default hiredis package for Red Hat is installed as "hiredis" instead of "libhiredis", which is what this package expects to call. Therefore, you will need to install from source on Red Hat / CentOS.
 
 From source
 
-    git clone git://github.com/antirez/hiredis.git
+    git clone http://github.com/redis/hiredis
     cd hiredis
     sudo make && make install
+
+The library will need to be added to the shared object cache, either temporarily with:
+
+    export LD_LIBRARY_PATH=/lib:/usr/lib:/usr/local/lib
+
+or more permanently by:
+
+    ldconfig /usr/local/lib
 
 Hiredis.jl is also dependent on the following Julia packages:
 
