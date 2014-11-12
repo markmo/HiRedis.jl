@@ -1,16 +1,16 @@
 [![Build Status](https://travis-ci.org/markmo/Hiredis.jl.svg?branch=master)](https://travis-ci.org/markmo/Hiredis.jl)
 
-# Hiredis
+# HiRedis
 
 Julia Redis client, which wraps the hiredis C library.
 
 [hiredis](https://github.com/redis/hiredis) is a C client library for the Redis database. [Redis](http://redis.io/) is an open source, BSD licensed, advanced key-value cache and store. It is often referred to as a data structure server since keys can contain strings, hashes, lists, sets, sorted sets, bitmaps and hyperloglogs. It is also referred to as a blazingly fast in-memory database. hiredis is developed by the same author as Redis.
 
-Hiredis.jl provides a Julia client that interfaces with Redis through hiredis. This approach was chosen to leverage the stability and performance of hiredis.
+HiRedis.jl provides a Julia client that interfaces with Redis through hiredis. This approach was chosen to leverage the stability and performance of hiredis.
 
 ## Install
 
-Hiredis.jl has a dependency on the hiredis C library. To install hiredis:
+HiRedis.jl has a dependency on the hiredis C library. To install hiredis:
 
 OS X using the Homebrew package manager
 
@@ -38,18 +38,18 @@ or more permanently by:
 
     ldconfig /usr/local/lib
 
-Hiredis.jl is also dependent on the following Julia packages:
+HiRedis.jl is also dependent on the following Julia packages:
 
 * Logging.jl
 * Docile.jl (documentation)
 
 To install into the Julia environment:
 
-    julia> Pkg.clone("https://github.com/markmo/Hiredis.jl.git")
+    julia> Pkg.clone("https://github.com/markmo/HiRedis.jl.git")
 
 ## Usage
 
-    using Hiredis
+    using HiRedis
     start_session("127.0.0.1", 6379)
 
     kvset("foo", "bar")

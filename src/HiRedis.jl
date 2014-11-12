@@ -1,7 +1,7 @@
 # redis client in julia
 # wraps the stable hiredis C library
 
-module Hiredis
+module HiRedis
 
 using Docile
 using Logging
@@ -195,7 +195,7 @@ end
 macro pipeline(expr::Expr)
     Expr(:block, map(x ->
         begin
-            if x.args[1] in names(Hiredis)
+            if x.args[1] in names(HiRedis)
                 args = copy(x.args)
                 push!(args, Expr(:kw, :pipeline, true))
                 Expr(x.head, args...)

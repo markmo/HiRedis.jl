@@ -17,4 +17,4 @@ before_install:
   - sudo apt-get install libhiredis-dev -y
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
 script:
-  - julia -e 'versioninfo(); Pkg.init(); Pkg.clone(pwd()); Pkg.test("Hiredis")'
+  - julia -e 'versioninfo(); Pkg.init(); Pkg.clone(pwd()); Pkg.test("HiRedis")'

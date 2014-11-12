@@ -1,4 +1,4 @@
-The Hiredis.jl package is licensed under the MIT "Expat" License:
+The HiRedis.jl package is licensed under the MIT "Expat" License:
 
 > Copyright (c) 2014: Mark Moloney.
 >

@@ -1,4 +1,4 @@
-using Hiredis
+using HiRedis
 using Base.Test
 
 using Logging
