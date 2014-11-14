@@ -2,7 +2,7 @@
 
 # HiRedis
 
-Julia Redis client, which wraps the hiredis C library.
+Julia Redis client that wraps the hiredis C library.
 
 [hiredis](https://github.com/redis/hiredis) is a C client library for the Redis database. [Redis](http://redis.io/) is an open source, BSD licensed, advanced key-value cache and store. It is often referred to as a data structure server since keys can contain strings, hashes, lists, sets, sorted sets, bitmaps and hyperloglogs. It is also referred to as a blazingly fast in-memory database. hiredis is developed by the same author as Redis.
 
