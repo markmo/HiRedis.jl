@@ -30,7 +30,7 @@ struct RedisReadTask
     privdata::Ptr{Nothing}
 end
 
-function create_string(task::Ptr{RedisReadTask}, str::Ptr{UInt8}, len::Uint)
+function create_string(task::Ptr{RedisReadTask}, str::Ptr{UInt8}, len::UInt)
     # not implemented
     ret::Ptr{Nothing} = 0
     ret
@@ -60,7 +60,7 @@ function free_object(obj::Ptr{Nothing})
     ret
 end
 
-const create_string_c = cfunction(create_string, Ptr{Nothing}, (Ptr{RedisReadTask}, Ptr{UInt8}, Uint))
+const create_string_c = cfunction(create_string, Ptr{Nothing}, (Ptr{RedisReadTask}, Ptr{UInt8}, UInt))
 
 const create_array_c = cfunction(create_array, Ptr{Nothing}, (Ptr{RedisReadTask}, Int32))
 
@@ -82,9 +82,9 @@ struct RedisReader
     err::Int32
     errstr::Ptr{UInt8}
     buf::Ptr{UInt8}
-    pos::Uint
-    len::Uint
-    maxbuf::Uint
+    pos::UInt
+    len::UInt
+    maxbuf::UInt
     rstack::Array{RedisReadTask,1}
     ridx::Int32
     reply::Ptr{Nothing}
@@ -103,10 +103,10 @@ end
 
 struct RedisReply
     rtype::Int32                  # REDIS_REPLY_*
-    integer::Uint64               # The integer when type is REDIS_REPLY_INTEGER
+    integer::UInt64               # The integer when type is REDIS_REPLY_INTEGER
     len::Int32                    # Length of string
     str::Ptr{UInt8}               # Used for both REDIS_REPLY_ERROR and REDIS_REPLY_STRING
-    elements::Uint                # number of elements, for REDIS_REPLY_ARRAY
+    elements::UInt                # number of elements, for REDIS_REPLY_ARRAY
     element::Ptr{Ptr{RedisReply}} # elements vector for REDIS_REPLY_ARRAY
 end
 
@@ -220,7 +220,7 @@ function do_command{S<:Any}(argv::Array{S,1})
     if redisContext == 0 # !isdefined(:redisContext)
         start_session()
     end
-    redisReply = ccall((:redisCommandArgv, "libhiredis"), Ptr{RedisReply}, (Ptr{RedisContext}, Int32, Ptr{Ptr{UInt8}}, Ptr{Uint}), redisContext::Ptr{RedisContext}, length(argv), argv, C_NULL)
+    redisReply = ccall((:redisCommandArgv, "libhiredis"), Ptr{RedisReply}, (Ptr{RedisContext}, Int32, Ptr{Ptr{UInt8}}, Ptr{UInt}), redisContext::Ptr{RedisContext}, length(argv), argv, C_NULL)
     get_result(redisReply)
 end
 
