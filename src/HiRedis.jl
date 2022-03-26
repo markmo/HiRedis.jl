@@ -22,7 +22,7 @@ const REDIS_REPLY_ERROR = 6
 global redisContext = 0
 global pipelinedCommandCount = 0
 
-type RedisReadTask
+struct RedisReadTask
     rtype::Int32
     elements::Int32
     idx::Int32
@@ -71,7 +71,7 @@ const create_nil_c = cfunction(create_nil, Ptr{Void}, (Ptr{RedisReadTask},))
 
 const free_object_c = cfunction(free_object, Void, (Ptr{Void},))
 
-type RedisReplyObjectFunctions
+struct RedisReplyObjectFunctions
     create_string_c
     create_array_c
     create_integer_c
@@ -79,7 +79,7 @@ type RedisReplyObjectFunctions
     free_object_c
 end
 
-type RedisReader
+struct RedisReader
     err::Int32
     errstr::Ptr{Uint8}
     buf::Ptr{Uint8}
@@ -93,7 +93,7 @@ type RedisReader
     privdata::Ptr{Void}
 end
 
-type RedisContext
+struct RedisContext
     err::Int32
     errstr::Ptr{Uint8}
     fd::Int32
@@ -102,7 +102,7 @@ type RedisContext
     reader::Ptr{RedisReader}
 end
 
-type RedisReply
+struct RedisReply
     rtype::Int32                  # REDIS_REPLY_*
     integer::Uint64               # The integer when type is REDIS_REPLY_INTEGER
     len::Int32                    # Length of string
