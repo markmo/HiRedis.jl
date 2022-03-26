@@ -5,7 +5,8 @@ module HiRedis
 
 using Logging
 
-Logging.configure(level=WARNING)
+logger = SimpleLogger(stdout, Logging.Warn)
+global_logger(logger)
 
 const REDIS_ERR = -1
 const REDIS_OK = 0
