@@ -60,15 +60,15 @@ function free_object(obj::Ptr{Nothing})
     ret
 end
 
-const create_string_c = cfunction(create_string, Ptr{Nothing}, (Ptr{RedisReadTask}, Ptr{UInt8}, UInt))
+const create_string_c = @cfunction(create_string, Ptr{Nothing}, (Ptr{RedisReadTask}, Ptr{UInt8}, UInt))
 
-const create_array_c = cfunction(create_array, Ptr{Nothing}, (Ptr{RedisReadTask}, Int32))
+const create_array_c = @cfunction(create_array, Ptr{Nothing}, (Ptr{RedisReadTask}, Int32))
 
-const create_integer_c = cfunction(create_integer, Ptr{Nothing}, (Ptr{RedisReadTask}, Int))
+const create_integer_c = @cfunction(create_integer, Ptr{Nothing}, (Ptr{RedisReadTask}, Int))
 
-const create_nil_c = cfunction(create_nil, Ptr{Nothing}, (Ptr{RedisReadTask},))
+const create_nil_c = @cfunction(create_nil, Ptr{Nothing}, (Ptr{RedisReadTask},))
 
-const free_object_c = cfunction(free_object, Nothing, (Ptr{Nothing},))
+const free_object_c = @cfunction(free_object, Nothing, (Ptr{Nothing},))
 
 struct RedisReplyObjectFunctions
     create_string_c
