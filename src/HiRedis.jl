@@ -30,7 +30,7 @@ struct RedisReadTask
     privdata::Ptr{Nothing}
 end
 
-function create_string(task::Ptr{RedisReadTask}, str::Ptr{Uint8}, len::Uint)
+function create_string(task::Ptr{RedisReadTask}, str::Ptr{UInt8}, len::Uint)
     # not implemented
     ret::Ptr{Nothing} = 0
     ret
@@ -60,7 +60,7 @@ function free_object(obj::Ptr{Nothing})
     ret
 end
 
-const create_string_c = cfunction(create_string, Ptr{Nothing}, (Ptr{RedisReadTask}, Ptr{Uint8}, Uint))
+const create_string_c = cfunction(create_string, Ptr{Nothing}, (Ptr{RedisReadTask}, Ptr{UInt8}, Uint))
 
 const create_array_c = cfunction(create_array, Ptr{Nothing}, (Ptr{RedisReadTask}, Int32))
 
@@ -80,8 +80,8 @@ end
 
 struct RedisReader
     err::Int32
-    errstr::Ptr{Uint8}
-    buf::Ptr{Uint8}
+    errstr::Ptr{UInt8}
+    buf::Ptr{UInt8}
     pos::Uint
     len::Uint
     maxbuf::Uint
@@ -94,10 +94,10 @@ end
 
 struct RedisContext
     err::Int32
-    errstr::Ptr{Uint8}
+    errstr::Ptr{UInt8}
     fd::Int32
     flags::Int32
-    obuf::Ptr{Uint8}
+    obuf::Ptr{UInt8}
     reader::Ptr{RedisReader}
 end
 
@@ -105,13 +105,13 @@ struct RedisReply
     rtype::Int32                  # REDIS_REPLY_*
     integer::Uint64               # The integer when type is REDIS_REPLY_INTEGER
     len::Int32                    # Length of string
-    str::Ptr{Uint8}               # Used for both REDIS_REPLY_ERROR and REDIS_REPLY_STRING
+    str::Ptr{UInt8}               # Used for both REDIS_REPLY_ERROR and REDIS_REPLY_STRING
     elements::Uint                # number of elements, for REDIS_REPLY_ARRAY
     element::Ptr{Ptr{RedisReply}} # elements vector for REDIS_REPLY_ARRAY
 end
 
 function start_session(host::ASCIIString = "127.0.0.1", port::Int = 6379)
-    global redisContext = ccall((:redisConnect, "libhiredis"), Ptr{RedisContext}, (Ptr{Uint8}, Int32), host, port)
+    global redisContext = ccall((:redisConnect, "libhiredis"), Ptr{RedisContext}, (Ptr{UInt8}, Int32), host, port)
 end
 
 function end_session()
@@ -135,7 +135,7 @@ function pipeline_command(command::ASCIIString)
     end
     debug(string("RedisClient.pipeline_command: ", command))
     global pipelinedCommandCount += 1
-    ccall((:redisAppendCommand, "libhiredis"), Int32, (Ptr{RedisContext}, Ptr{Uint8}), redisContext::Ptr{RedisContext}, command)
+    ccall((:redisAppendCommand, "libhiredis"), Int32, (Ptr{RedisContext}, Ptr{UInt8}), redisContext::Ptr{RedisContext}, command)
 end
 
 """
@@ -211,7 +211,7 @@ function do_command(command::ASCIIString)
         start_session()
     end
     debug(string("RedisClient.do_command: ", command))
-    redisReply = ccall((:redisvCommand, "libhiredis"), Ptr{RedisReply}, (Ptr{RedisContext}, Ptr{Uint8}), redisContext::Ptr{RedisContext}, command)
+    redisReply = ccall((:redisvCommand, "libhiredis"), Ptr{RedisReply}, (Ptr{RedisContext}, Ptr{UInt8}), redisContext::Ptr{RedisContext}, command)
     get_result(redisReply)
 end
 
@@ -220,7 +220,7 @@ function do_command{S<:Any}(argv::Array{S,1})
     if redisContext == 0 # !isdefined(:redisContext)
         start_session()
     end
-    redisReply = ccall((:redisCommandArgv, "libhiredis"), Ptr{RedisReply}, (Ptr{RedisContext}, Int32, Ptr{Ptr{Uint8}}, Ptr{Uint}), redisContext::Ptr{RedisContext}, length(argv), argv, C_NULL)
+    redisReply = ccall((:redisCommandArgv, "libhiredis"), Ptr{RedisReply}, (Ptr{RedisContext}, Int32, Ptr{Ptr{UInt8}}, Ptr{Uint}), redisContext::Ptr{RedisContext}, length(argv), argv, C_NULL)
     get_result(redisReply)
 end
 
