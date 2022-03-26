@@ -1,0 +1,4 @@
+name = "HiRedis"
+uuid = "f0141412-836d-4f00-9b5b-fea8b51d63ab"
+authors = ["Mark Moloney <markmo@me.com>"]
+version = "0.1.0"
