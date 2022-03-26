@@ -25,50 +25,50 @@ struct RedisReadTask
     rtype::Int32
     elements::Int32
     idx::Int32
-    obj::Ptr{Void}
+    obj::Ptr{Nothing}
     parent::Ptr{RedisReadTask}
-    privdata::Ptr{Void}
+    privdata::Ptr{Nothing}
 end
 
 function create_string(task::Ptr{RedisReadTask}, str::Ptr{Uint8}, len::Uint)
     # not implemented
-    ret::Ptr{Void} = 0
+    ret::Ptr{Nothing} = 0
     ret
 end
 
 function create_array(task::Ptr{RedisReadTask}, len::Int32)
     # not implemented
-    ret::Ptr{Void} = 0
+    ret::Ptr{Nothing} = 0
     ret
 end
 
 function create_integer(task::Ptr{RedisReadTask}, int::Int)
     # not implemented
-    ret::Ptr{Void} = 0
+    ret::Ptr{Nothing} = 0
     ret
 end
 
 function create_nil(task::Ptr{RedisReadTask})
     # not implemented
-    ret::Ptr{Void} = 0
+    ret::Ptr{Nothing} = 0
     ret
 end
 
-function free_object(obj::Ptr{Void})
+function free_object(obj::Ptr{Nothing})
     # not implemented
-    ret::Void = 0
+    ret::Nothing = 0
     ret
 end
 
-const create_string_c = cfunction(create_string, Ptr{Void}, (Ptr{RedisReadTask}, Ptr{Uint8}, Uint))
+const create_string_c = cfunction(create_string, Ptr{Nothing}, (Ptr{RedisReadTask}, Ptr{Uint8}, Uint))
 
-const create_array_c = cfunction(create_array, Ptr{Void}, (Ptr{RedisReadTask}, Int32))
+const create_array_c = cfunction(create_array, Ptr{Nothing}, (Ptr{RedisReadTask}, Int32))
 
-const create_integer_c = cfunction(create_integer, Ptr{Void}, (Ptr{RedisReadTask}, Int))
+const create_integer_c = cfunction(create_integer, Ptr{Nothing}, (Ptr{RedisReadTask}, Int))
 
-const create_nil_c = cfunction(create_nil, Ptr{Void}, (Ptr{RedisReadTask},))
+const create_nil_c = cfunction(create_nil, Ptr{Nothing}, (Ptr{RedisReadTask},))
 
-const free_object_c = cfunction(free_object, Void, (Ptr{Void},))
+const free_object_c = cfunction(free_object, Nothing, (Ptr{Nothing},))
 
 struct RedisReplyObjectFunctions
     create_string_c
@@ -87,9 +87,9 @@ struct RedisReader
     maxbuf::Uint
     rstack::Array{RedisReadTask,1}
     ridx::Int32
-    reply::Ptr{Void}
+    reply::Ptr{Nothing}
     fn::Ptr{RedisReplyObjectFunctions}
-    privdata::Ptr{Void}
+    privdata::Ptr{Nothing}
 end
 
 struct RedisContext
@@ -116,13 +116,13 @@ end
 
 function end_session()
     if redisContext != 0 # isdefined(:redisContext)
-        ccall((:redisFree, "libhiredis"), Void, (Ptr{RedisContext},), redisContext::Ptr{RedisContext})
+        ccall((:redisFree, "libhiredis"), Nothing, (Ptr{RedisContext},), redisContext::Ptr{RedisContext})
     end
 end
 
 """Free memory allocated to objects returned from hiredis"""
 function free_reply_object(redisReply)
-    ccall((:freeReplyObject, "libhiredis"), Void, (Ptr{RedisReply},), redisReply)
+    ccall((:freeReplyObject, "libhiredis"), Nothing, (Ptr{RedisReply},), redisReply)
 end
 
 """
