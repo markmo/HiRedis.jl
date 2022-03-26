@@ -3,11 +3,9 @@
 
 module HiRedis
 
-using Docile
 using Logging
 
 Logging.configure(level=WARNING)
-@docstrings
 
 const REDIS_ERR = -1
 const REDIS_OK = 0
@@ -121,15 +119,15 @@ function end_session()
     end
 end
 
-@doc "Free memory allocated to objects returned from hiredis" ->
+"""Free memory allocated to objects returned from hiredis"""
 function free_reply_object(redisReply)
     ccall((:freeReplyObject, "libhiredis"), Void, (Ptr{RedisReply},), redisReply)
 end
 
-@doc """
+"""
 Appends commands to an output buffer. Pipelining is sending a batch of commands
 to redis to be processed in bulk. It cuts down the number of network requests.
-""" ->
+"""
 function pipeline_command(command::ASCIIString)
     if redisContext == 0 # !isdefined(:redisContext)
         start_session()
@@ -139,20 +137,20 @@ function pipeline_command(command::ASCIIString)
     ccall((:redisAppendCommand, "libhiredis"), Int32, (Ptr{RedisContext}, Ptr{Uint8}), redisContext::Ptr{RedisContext}, command)
 end
 
-@doc """
+"""
 In a blocking context, this function first checks if there are unconsumed
 replies to return and returns one if so. Otherwise, it flushes the output
 buffer to the socket and reads until it has a reply.
-""" ->
+"""
 function call_get_reply(redisReply::Array{Ptr{RedisReply},1})
     ccall((:redisGetReply, "libhiredis"), Int32, (Ptr{RedisContext}, Ptr{Ptr{RedisReply}}), redisContext::Ptr{RedisContext}, redisReply)
 end
 
-@doc """
+"""
 Calls call_get_reply until the pipelinedCommandCount is 0 or an error
 is returned. Adds the results from each reply to an Array, then returns the
 Array.
-""" ->
+"""
 function get_reply()
     redisReply = Array(Ptr{RedisReply},1)
     results = Any[]
@@ -163,10 +161,10 @@ function get_reply()
     results
 end
 
-@doc """
+"""
 Converts the reply object from hiredis into a String, int, or Array
 as appropriate the the reply type.
-""" ->
+"""
 function get_result(redisReply::Ptr{RedisReply})
     r = unsafe_load(redisReply)
     if r.rtype == REDIS_REPLY_ERROR
@@ -191,7 +189,7 @@ function get_result(redisReply::Ptr{RedisReply})
     ret
 end
 
-@doc "Pipelines a block of ordinary blocking calls." ->
+"""Pipelines a block of ordinary blocking calls."""
 macro pipeline(expr::Expr)
     Expr(:block, map(x ->
         begin
@@ -205,7 +203,7 @@ macro pipeline(expr::Expr)
         end, filter(x -> typeof(x) == Expr, expr.args))...)
 end
 
-@doc "Issues a blocking command to hiredis." ->
+"""Issues a blocking command to hiredis."""
 function do_command(command::ASCIIString)
     if redisContext == 0 # !isdefined(:redisContext)
 #         error("redisContext not defined. Please call RedisClient.start_session.")
@@ -216,7 +214,7 @@ function do_command(command::ASCIIString)
     get_result(redisReply)
 end
 
-@doc "Issues a blocking command to hiredis, accepting command arguments as an Array." ->
+"""Issues a blocking command to hiredis, accepting command arguments as an Array."""
 function do_command{S<:Any}(argv::Array{S,1})
     if redisContext == 0 # !isdefined(:redisContext)
         start_session()
@@ -225,7 +223,7 @@ function do_command{S<:Any}(argv::Array{S,1})
     get_result(redisReply)
 end
 
-@doc "Switches between blocking and pipelined command execution according to flag." ->
+"""Switches between blocking and pipelined command execution according to flag."""
 function docommand(cmd::ASCIIString, pipeline::Bool)
     (pipeline || (pipelinedCommandCount::Int > 0)) ? pipeline_command(cmd) : do_command(cmd)
 end
@@ -238,7 +236,7 @@ end
 #         :px            => "Set the specified expire time, in milliseconds",
 #         :pipeline      => "A flag to indicate that the command should be pipelined"
 #     )) ->
-@doc md"""
+"""
 Set the string value of a key.
 
 Params:
@@ -248,7 +246,7 @@ Params:
 * ex - Set the specified expire time, in seconds
 * px - Set the specified expire time, in milliseconds
 * pipeline - A flag to indicate that the command should be pipelined
-""" ->
+"""
 function kvset(key::ASCIIString, value::Any; ex::Int=0, px::Int=0, pipeline::Bool=false)
     cmd = string("SET ", key, " ", value)
     if ex > 0
@@ -259,62 +257,62 @@ function kvset(key::ASCIIString, value::Any; ex::Int=0, px::Int=0, pipeline::Boo
     docommand(cmd, pipeline)
 end
 
-@doc "Get the value of a key." ->
+"""Get the value of a key."""
 function kvget(key::ASCIIString; pipeline::Bool=false)
     docommand(string("GET ", key), pipeline)
 end
 
-@doc "Increment the integer value of a key by one." ->
+"""Increment the integer value of a key by one."""
 function incr(key::ASCIIString; pipeline::Bool=false)
     docommand(string("INCR ", key), pipeline)
 end
 
-@doc "Increment the integer value of a key by the given amount." ->
+"""Increment the integer value of a key by the given amount."""
 function incrby(key::ASCIIString, by::Int; pipeline::Bool=false)
     docommand(string("INCRBY ", key, " ", by), pipeline)
 end
 
-@doc "Delete a key." ->
+"""Delete a key."""
 function del(key::ASCIIString)
     docommand(string("DEL ", key))
 end
 
-@doc "Determine if a key exists." ->
+"""Determine if a key exists."""
 function exists(key::ASCIIString)
     docommand(string("EXISTS ", key))
 end
 
-@doc "Find all keys matching the given pattern." ->
+"""Find all keys matching the given pattern."""
 function getkeys(pattern::ASCIIString)
     docommand(string("KEYS ", pattern))
 end
 
-@doc "Return a serialized version of the value stored at the specified key." ->
+"""Return a serialized version of the value stored at the specified key."""
 function rdump(key::ASCIIString)
     docommand(string("DUMP ", key))
 end
 
-@doc "Determine the type stored at key." ->
+"""Determine the type stored at key."""
 function rtype(key::ASCIIString)
     docommand(string("TYPE ", key))
 end
 
-@doc "Set the string value of a hash field." ->
+"""Set the string value of a hash field."""
 function hset(key::ASCIIString, attr_name::ASCIIString, attr_value::Any; pipeline::Bool=false)
     #TODO do_command(["HSET %s %s %s", key, attr_name, string(attr_value)])
     docommand(string("HSET ", key, " ", attr_name, " ", attr_value), pipeline)
 end
 
-@doc "Get the value of a hash field." ->
+"""Get the value of a hash field."""
 function hget(key::ASCIIString, attr_name::ASCIIString; pipeline::Bool=false)
     docommand(string("HGET ", key, " ", attr_name), pipeline)
 end
 
-@doc """
+"""
 Set multiple hash fields to multiple values. A variable number of arguments
 follow key in `field` `value` format, e.g.:
     `hmset("myhash", "field1", "Hello", "field2", "World")`
-""" ->
+"""
 function hmset(key::ASCIIString, argv::Any...; pipeline::Bool=false)
     cmd = string("HMSET ", key)
     for arg in argv
@@ -323,10 +321,10 @@ function hmset(key::ASCIIString, argv::Any...; pipeline::Bool=false)
     docommand(cmd, pipeline)
 end
 
-@doc """
+"""
 Set multiple hash fields to multiple values. Fields and values are provided
 as an Array.
-""" ->
+"""
 function hmset{S<:Any}(key::ASCIIString, attrs::Array{S,1}; pipeline::Bool=false)
     cmd = string("HMSET ", key)
     for attr in attrs
@@ -335,10 +333,10 @@ function hmset{S<:Any}(key::ASCIIString, attrs::Array{S,1}; pipeline::Bool=false
     docommand(cmd, pipeline)
 end
 
-@doc """
+"""
 Set multiple hash fields to multiple values. Fields and values are provided
 as a Dict.
-""" ->
+"""
 function hmset(key::ASCIIString, attrs::Dict{ASCIIString,Any}; pipeline::Bool=false)
     cmd = string("HMSET ", key)
     for (field, val) in attrs
@@ -347,10 +345,10 @@ function hmset(key::ASCIIString, attrs::Dict{ASCIIString,Any}; pipeline::Bool=fa
     docommand(cmd, pipeline)
 end
 
-@doc """
+"""
 Get the values of all the given hash fields. Multiple fields are provided
 as additional arguments.
-""" ->
+"""
 function hmget(key::ASCIIString, argv::ASCIIString...; pipeline::Bool=false)
     cmd = string("HMGET ", key)
     for arg in argv
@@ -359,10 +357,10 @@ function hmget(key::ASCIIString, argv::ASCIIString...; pipeline::Bool=false)
     docommand(cmd, pipeline)
 end
 
-@doc """
+"""
 Get the values of all the given hash fields. Multiple fields are provided
 as an Array.
-""" ->
+"""
 function hmget(key::ASCIIString, fields::Array{ASCIIString,1}; pipeline::Bool=false)
     cmd = string("HMGET ", key)
     for field in fields
@@ -371,7 +369,7 @@ function hmget(key::ASCIIString, fields::Array{ASCIIString,1}; pipeline::Bool=fa
     docommand(cmd, pipeline)
 end
 
-@doc "Get all the fields and values in a hash." ->
+"""Get all the fields and values in a hash."""
 function hgetall(key::ASCIIString)
     reply::Array{Any,1} = do_command(string("HGETALL ", key))
     n = length(reply)
@@ -384,10 +382,10 @@ function hgetall(key::ASCIIString)
     dict
 end
 
-@doc """
+"""
 Delete one or more hash fields. Multiple fields are provided
 as additional arguments.
-""" ->
+"""
 function hdel(key::ASCIIString, argv::ASCIIString...; pipeline::Bool=false)
     cmd = string("HDEL ", key)
     for arg in argv
@@ -396,10 +394,10 @@ function hdel(key::ASCIIString, argv::ASCIIString...; pipeline::Bool=false)
     docommand(cmd, pipeline)
 end
 
-@doc """
+"""
 Delete one or more hash fields. Multiple fields are provided
 as an Array.
-""" ->
+"""
 function hdel(key::ASCIIString, fields::Array{ASCIIString,1}; pipeline::Bool=false)
     cmd = string("HDEL ", key)
     for field in fields
@@ -408,37 +406,37 @@ function hdel(key::ASCIIString, fields::Array{ASCIIString,1}; pipeline::Bool=fal
     docommand(cmd, pipeline)
 end
 
-@doc "Determine if a hash field exists." ->
+"""Determine if a hash field exists."""
 function hexists(key::ASCIIString, field::ASCIIString; pipeline::Bool=false)
     docommand(string("HEXISTS ", key, " ", field), pipeline)
 end
 
-@doc "Get all the fields in a hash." ->
+"""Get all the fields in a hash."""
 function hkeys(key::ASCIIString; pipeline::Bool=false)
     docommand(string("HKEYS ", key), pipeline)
 end
 
-@doc "Get all the values in a hash." ->
+"""Get all the values in a hash."""
 function hvals(key::ASCIIString; pipeline::Bool=false)
     docommand(string("HVALS ", key), pipeline)
 end
 
-@doc "Get the number of fields in a hash." ->
+"""Get the number of fields in a hash."""
 function hlen(key::ASCIIString; pipeline::Bool=false)
     docommand(string("HLEN ", key), pipeline)
 end
 
-@doc "Increment the integer value of a hash field by the given number." ->
+"""Increment the integer value of a hash field by the given number."""
 function hincrby(key::ASCIIString, field::ASCIIString, increment::Int; pipeline::Bool=false)
     docommand(string("HINCRBY ", key, " ", field, " ", increment), pipeline)
 end
 
-@doc "Increment the float value of a hash field by the given number." ->
+"""Increment the float value of a hash field by the given number."""
 function hincrby(key::ASCIIString, field::ASCIIString, increment::Float64; pipeline::Bool=false)
     docommand(string("HINCRBYFLOAT ", key, " ", field, " ", increment), pipeline)
 end
 
-@doc "Add one or more members to a set." ->
+"""Add one or more members to a set."""
 function sadd(key::ASCIIString, argv::Any...; pipeline::Bool=false)
     cmd = string("SADD ", key)
     for arg in argv
@@ -453,25 +451,25 @@ function sadd(key::ASCIIString, argv::Any...; pipeline::Bool=false)
     docommand(cmd, pipeline)
 end
 
-@doc "Get all the members in a set." ->
+"""Get all the members in a set."""
 function smembers(key::ASCIIString; pipeline::Bool=false)
     docommand(string("SMEMBERS ", key), pipeline)
 end
 
-@doc "Determine if a given value is a member of a set." ->
+"""Determine if a given value is a member of a set."""
 function sismember(key::ASCIIString, member::Any; pipeline::Bool=false)
     docommand(string("SISMEMBER ", key, " ", string(member)), pipeline)
 end
 
-@doc "Get the number of members in a set." ->
+"""Get the number of members in a set."""
 function scard(key::ASCIIString; pipeline::Bool=false)
     docommand(string("SCARD ", key), pipeline)
 end
 
-@doc """
+"""
 Remove one or more members from a set. Members are provided
 as additional arguments.
-""" ->
+"""
 function srem(key::ASCIIString, argv::Any...; pipeline::Bool=false)
     cmd = string("SREM ", key)
     for arg in argv
@@ -480,10 +478,10 @@ function srem(key::ASCIIString, argv::Any...; pipeline::Bool=false)
     docommand(cmd, pipeline)
 end
 
-@doc """
+"""
 Remove one or more members from a set. Members are provided
 as an Array.
-""" ->
+"""
 function srem{S<:Any}(key::ASCIIString, members::Array{S,1}; pipeline::Bool=false)
     cmd = string("SREM ", key)
     for member in members
@@ -492,7 +490,7 @@ function srem{S<:Any}(key::ASCIIString, members::Array{S,1}; pipeline::Bool=fals
     docommand(cmd, pipeline)
 end
 
-@doc "Subtract multiple sets. Multiple sets are provided as additional arguments." ->
+"""Subtract multiple sets. Multiple sets are provided as additional arguments."""
 function sdiff(key::ASCIIString, argv::ASCIIString...; pipeline::Bool=false)
     cmd = string("SDIFF ", key)
     for arg in argv
@@ -501,7 +499,7 @@ function sdiff(key::ASCIIString, argv::ASCIIString...; pipeline::Bool=false)
     docommand(cmd, pipeline)
 end
 
-@doc "Subtract multiple sets. Multiple sets are provided as an Array." ->
+"""Subtract multiple sets. Multiple sets are provided as an Array."""
 function sdiff(keys::Array{ASCIIString,1}; pipeline::Bool=false)
     cmd = "SDIFF"
     for key in keys
@@ -510,7 +508,7 @@ function sdiff(keys::Array{ASCIIString,1}; pipeline::Bool=false)
     docommand(cmd, pipeline)
 end
 
-@doc "Intersect multiple sets. Multiple sets are provided as additional arguments." ->
+"""Intersect multiple sets. Multiple sets are provided as additional arguments."""
 function sinter(key::ASCIIString, argv::ASCIIString...; pipeline::Bool=false)
     cmd = string("SINTER ", key)
     for arg in argv
@@ -519,7 +517,7 @@ function sinter(key::ASCIIString, argv::ASCIIString...; pipeline::Bool=false)
     docommand(cmd, pipeline)
 end
 
-@doc "Intersect multiple sets. Multiple sets are provided as an Array." ->
+"""Intersect multiple sets. Multiple sets are provided as an Array."""
 function sinter(keys::Array{ASCIIString,1}; pipeline::Bool=false)
     cmd = "SINTER"
     for key in keys
@@ -528,7 +526,7 @@ function sinter(keys::Array{ASCIIString,1}; pipeline::Bool=false)
     docommand(cmd, pipeline)
 end
 
-@doc "Add multiple sets. Multiple sets are provided as additional arguments." ->
+"""Add multiple sets. Multiple sets are provided as additional arguments."""
 function sunion(key::ASCIIString, argv::ASCIIString...; pipeline::Bool=false)
     cmd = string("SUNION ", key)
     for arg in argv
@@ -537,7 +535,7 @@ function sunion(key::ASCIIString, argv::ASCIIString...; pipeline::Bool=false)
     docommand(cmd, pipeline)
 end
 
-@doc "Add multiple sets. Multiple sets are provided as an Array." ->
+"""Add multiple sets. Multiple sets are provided as an Array."""
 function sunion(keys::Array{ASCIIString,1}; pipeline::Bool=false)
     cmd = "SUNION"
     for key in keys
@@ -546,17 +544,17 @@ function sunion(keys::Array{ASCIIString,1}; pipeline::Bool=false)
     docommand(cmd, pipeline)
 end
 
-@doc "Change the selected database for the current connection." ->
+"""Change the selected database for the current connection."""
 function selectdb(db::Int)
     do_command(string("SELECT ", db))
 end
 
-@doc "Remove all keys from the current database." ->
+"""Remove all keys from the current database."""
 function flushdb()
     do_command("FLUSHDB")
 end
 
-@doc "Remove all keys from all databases." ->
+"""Remove all keys from all databases."""
 function flushall()
     do_command("FLUSHALL")
 end
