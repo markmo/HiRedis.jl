@@ -133,7 +133,7 @@ function pipeline_command(command::String)
     if redisContext == 0 # !isdefined(:redisContext)
         start_session()
     end
-    debug(string("RedisClient.pipeline_command: ", command))
+    @debug(string("RedisClient.pipeline_command: ", command))
     global pipelinedCommandCount += 1
     ccall((:redisAppendCommand, "libhiredis"), Int32, (Ptr{RedisContext}, Ptr{UInt8}), redisContext::Ptr{RedisContext}, command)
 end
@@ -210,7 +210,7 @@ function do_command(command::String)
 #         error("redisContext not defined. Please call RedisClient.start_session.")
         start_session()
     end
-    debug(string("RedisClient.do_command: ", command))
+    @debug(string("RedisClient.do_command: ", command))
     redisReply = ccall((:redisvCommand, "libhiredis"), Ptr{RedisReply}, (Ptr{RedisContext}, Ptr{UInt8}), redisContext::Ptr{RedisContext}, command)
     get_result(redisReply)
 end
