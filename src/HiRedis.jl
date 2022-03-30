@@ -216,7 +216,7 @@ function do_command(command::String)
 end
 
 """Issues a blocking command to hiredis, accepting command arguments as an Array."""
-function do_command{S<:Any}(argv::Array{S,1})
+function do_command(argv::AbstractVector{<: Any})
     if redisContext == 0 # !isdefined(:redisContext)
         start_session()
     end
@@ -326,7 +326,7 @@ end
 Set multiple hash fields to multiple values. Fields and values are provided
 as an Array.
 """
-function hmset{S<:Any}(key::String, attrs::Array{S,1}; pipeline::Bool=false)
+function hmset(key::String, attrs::AbstractVector{<: Any}; pipeline::Bool=false)
     cmd = string("HMSET ", key)
     for attr in attrs
         cmd = string(cmd, " ", string(attr))
@@ -483,7 +483,7 @@ end
 Remove one or more members from a set. Members are provided
 as an Array.
 """
-function srem{S<:Any}(key::String, members::Array{S,1}; pipeline::Bool=false)
+function srem(key::String, members::AbstractVector{<: Any}; pipeline::Bool=false)
     cmd = string("SREM ", key)
     for member in members
         cmd = string(cmd, " ", string(member))
