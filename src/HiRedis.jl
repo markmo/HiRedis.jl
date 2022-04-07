@@ -175,9 +175,9 @@ function get_result(redisReply::Ptr{RedisReply})
     if r.rtype == REDIS_REPLY_STRING
         ret = bytestring(r.str)
     elseif r.rtype == REDIS_REPLY_INTEGER
-        ret = int(r.integer)
+        ret = Int(r.integer)
     elseif r.rtype == REDIS_REPLY_ARRAY
-        n = int(r.elements)
+        n = Int(r.elements)
         results = String[]
         replies = pointer_to_array(r.element, n)
         for i in 1:n

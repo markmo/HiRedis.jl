@@ -58,7 +58,7 @@ info("test pipelining using the @pipeline macro")
     kvget("maz")
 end
 replies = get_reply()
-@test int(replies[4]) == 3
+@test Int(replies[4]) == 3
 
 info("flushdb, select db 1")
 flushdb()
