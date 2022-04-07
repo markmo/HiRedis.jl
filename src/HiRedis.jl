@@ -441,7 +441,8 @@ end
 function sadd(key::String, argv::Any...; pipeline::Bool=false)
     cmd = string("SADD ", key)
     for arg in argv
-        if isa(arg, Array) || isa(arg, Range)
+        # if isa(arg, Array) || isa(arg, Range)
+        if isa(arg, Array)
             for member in arg
                 cmd = string(cmd, " ", string(member))
             end
