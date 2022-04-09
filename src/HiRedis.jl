@@ -179,7 +179,7 @@ function get_result(redisReply::Ptr{RedisReply})
     elseif r.rtype == REDIS_REPLY_ARRAY
         n = Int(r.elements)
         results = String[]
-        replies = unsafe_wrap(r.element, n)
+        replies = unsafe_wrap(Array, r.element, n)
         for i in 1:n
             ri = unsafe_load(replies[i])
             push!(results, unsafe_string(ri.str))
