@@ -169,20 +169,20 @@ as appropriate the the reply type.
 function get_result(redisReply::Ptr{RedisReply})
     r = unsafe_load(redisReply)
     if r.rtype == REDIS_REPLY_ERROR
-        error(bytestring(r.str))
+        error(unsafe_string(r.str))
     end
     ret::Any = nothing
     if r.rtype == REDIS_REPLY_STRING
-        ret = bytestring(r.str)
+        ret = unsafe_string(r.str)
     elseif r.rtype == REDIS_REPLY_INTEGER
-        ret = Int(r.integer)
+        ret = parse(Int, r.integer)
     elseif r.rtype == REDIS_REPLY_ARRAY
-        n = Int(r.elements)
+        n = parse(Int, r.elements)
         results = String[]
         replies = pointer_to_array(r.element, n)
         for i in 1:n
             ri = unsafe_load(replies[i])
-            push!(results, bytestring(ri.str))
+            push!(results, unsafe_string(ri.str))
         end
         ret = results
     end
